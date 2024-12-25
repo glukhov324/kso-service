@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+checkpoints/
+classification_models/
+output_preds/
+temp_images/
+cur_data/
+webServerApiSettings.json
+.env
