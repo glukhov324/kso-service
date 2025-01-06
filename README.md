@@ -6,8 +6,8 @@ put folders checkpoints and classification_models to src
 
 __Installation & start guide__
 
-docker build -t kso:v1 .
-docker run -p 8000:8000 --gpus=all kso:v1
+1. docker build -t kso:v1 .
+2. docker run -p 8000:8000 --gpus=all kso:v1
 
 after previous step you can test my project with test images from folder test_images by link 
 
