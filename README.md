@@ -6,18 +6,15 @@ put folders checkpoints and classification_models to src
 
 Installation & start guide
 
-Windows:
+docker build -t kso:v1 .
+docker run -p 8000:8000 --gpus=all kso:v1
 
-1. py -3.10 -m venv venv 
-2. .\venv\Scripts\activate
-3. python -m pip install pip --upgrade
-4. pip install -r .\requirements.txt
+after previous step you can test my project with test images from folder test_images by link 
 
-Linux/macOS:
+http://127.0.0.1:8000/  - windows
+http://0.0.0.0:8000/    - linux/macOS
 
-1. python3.10 -m venv venv
-2. source venv/bin/activate
-3. python -m pip install pip --upgrade
-4. pip install -r requirements.txt
+you can check docs of my API by link:
 
-to start uvicorn server: python -m uvicorn app:app --reload
+http://127.0.0.1:8000/docs  - windows
+http://0.0.0.0:8000/docs    - linux/macOS
