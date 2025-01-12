@@ -4,7 +4,7 @@ Download folders checkpoints and classification_models by link https://drive.goo
 
 put folders checkpoints and classification_models to src
 
-__Installation & start guide__
+# __Installation & start guide__
 
 1. docker build -t kso:v1 .
 2. docker run -p 8000:8000 --gpus=all kso:v1
@@ -13,10 +13,10 @@ after previous step you can test my project with test images from folder test_im
 
 http://127.0.0.1:8000/  - windows
 
-http://0.0.0.0:8000/    - linux/macOS
+http://0.0.0.0:8000/    - linux
 
 you can check docs of my API by link:
 
 http://127.0.0.1:8000/docs  - windows
 
-http://0.0.0.0:8000/docs    - linux/macOS
+http://0.0.0.0:8000/docs    - linux
