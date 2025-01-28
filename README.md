@@ -1,10 +1,12 @@
 [Ссылка](https://github.com/wgcban/ChangeFormer?tab=readme-ov-file) на оригинальный репозиторий модели Changeformer
 
-Скачайте папки checkpoints и classification_models по [ссылке](https://drive.google.com/drive/folders/1H61bM1Q2QagrBMJiPrk0qrGBIBUZs3MZ?usp=sharing) из гугл диска
+## Скачивание необходимых файлов
 
-положите папки checkpoints и classification_models в папку src
+1. Скачайте папки checkpoints и classification_models по [ссылке](https://drive.google.com/drive/folders/1H61bM1Q2QagrBMJiPrk0qrGBIBUZs3MZ?usp=sharing) из гугл диска
 
-## __Fast start with docker__
+2. Положите папки checkpoints и classification_models в папку src
+
+## Запуск проекта
 
 ```sh
 docker build -t kso:v1 .
