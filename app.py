@@ -37,8 +37,8 @@ async def get_index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 @app.post('/a_b_label_predict')
-async def a_b_label_predict(file_a: UploadFile = File(...), 
-                            file_b: UploadFile = File(...), 
+async def a_b_label_predict(file_a: UploadFile, 
+                            file_b: UploadFile, 
                             label: str = Form(...)) -> JSONResponse:
     """
     file_a: изображение до добавления товара
