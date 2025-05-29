@@ -11,7 +11,7 @@ async function submitImage() {
   
     try {
       // Отправляем запрос POST на FastAPI
-      const response = await fetch("http://localhost:8000/predict", {
+      const response = await fetch("http://localhost:8000/pair_images/predict", {
         method: "POST",
         body: formData
       });

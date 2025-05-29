@@ -37,7 +37,7 @@
             formData.append("label", labelPredict);
 
             try {
-                const response = await fetch("http://127.0.0.1:8000/a_b_label_predict", {
+                const response = await fetch("http://127.0.0.1:8000/pair_images/predict", {
                     method: "POST",
                     body: formData
                 });
