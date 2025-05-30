@@ -1,19 +1,21 @@
-from src.change_detection.model import ChangeFormerV6
 import os
-from src.settings import settings
+import cv2
+import numpy as np
 import torch
 import torch.nn.functional as F
+from src.change_detection.model import ChangeFormerV6
+from src.settings import settings
 
 
 class ChangeDetectionPredictor():
     def __init__(self):
         self.cd_model = ChangeFormerV6()
+        self.dilate_kernel = np.array([[0,1,0],[1,1,1],[0,1,0]]).astype('uint8')
     
     def load_checkpoint(self, checkpoint_path: str):
+
         if os.path.exists(checkpoint_path):
-            # load the entire checkpoint
             checkpoint = torch.load(checkpoint_path, map_location=settings.DEVICE)
-            print('Checkpoint loaded!')
             self.cd_model.load_state_dict(checkpoint['model_G_state_dict'])
             self.cd_model.to(settings.DEVICE)
 
@@ -21,19 +23,25 @@ class ChangeDetectionPredictor():
             raise FileNotFoundError('no such checkpoint %s' % checkpoint_path)
         return self.cd_model.eval()
 
-    def _visualize_pred(self):
-        pred = F.interpolate(self.G_pred, size=(480, 640), mode="bilinear", align_corners=False)
-        pred = torch.argmax(pred, dim=1, keepdim=True)
-        pred_vis = pred * 255
+    def _postprocessing_mask(self, prediction: torch.Tensor) -> np.ndarray:
+        pred = F.interpolate(prediction, size=(480, 640), mode="bilinear", align_corners=False)
+        pred = torch.argmax(pred, dim=1, keepdim=True).cpu().numpy()
+        pred_vis = (pred * 255).squeeze((0, 1))
+        pred_vis = cv2.dilate(src=pred_vis.astype(np.uint8), 
+                              kernel=self.dilate_kernel, 
+                              iterations=settings.DILATE_ITER)
+   
         return pred_vis
 
-    def _inference_helper(self, batch):
-        self.batch = batch
-        img_in1 = batch['A'].to(settings.DEVICE)
-        img_in2 = batch['B'].to(settings.DEVICE)
-        self.G_pred = self.cd_model(img_in1, img_in2)[-1]
+    def inference(self, 
+                  img_a: torch.Tensor, 
+                  img_b: torch.Tensor) -> np.ndarray:
         
-        return self._visualize_pred()
+        img_a = img_a.to(settings.DEVICE)
+        img_b = img_b.to(settings.DEVICE)
+        prediction = self.cd_model(img_a, img_b)[-1]
+   
+        return self._postprocessing_mask(prediction)
 
 
 cd_predictor = ChangeDetectionPredictor()

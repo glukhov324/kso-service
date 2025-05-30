@@ -3,6 +3,7 @@ from fastapi import APIRouter, Request, UploadFile, Form
 from fastapi.responses import JSONResponse
 from src.classification.model import cls_models_dict
 from src.pipeline import pipeline_prediction
+from src.schemas import PipelinePrediction
 
 
 
@@ -18,7 +19,7 @@ async def get_index(request: Request):
 @router.post('/predict')
 async def a_b_label_predict(file_a: UploadFile, 
                             file_b: UploadFile, 
-                            label: str = Form(...)) -> JSONResponse:
+                            user_label: str = Form(...)) -> PipelinePrediction:
     """
     file_a: изображение до добавления товара
 
@@ -33,16 +34,12 @@ async def a_b_label_predict(file_a: UploadFile,
     img_with_mask: маска модели сегментации изменений, закодированная в base64 
     """
 
-    if label not in cls_models_dict.keys():
+    if user_label not in cls_models_dict.keys():
         return JSONResponse(status_code=404, content={"message": "Для указанного названия товара нет классификатора"})
 
     data_a = await file_a.read()
     data_b = await file_b.read()
 
+    pipeline_response = pipeline_prediction(data_a, data_b, user_label)
 
-    predicted, img_base64 = pipeline_prediction(data_a, data_b, label)
-
-    return JSONResponse(content={
-        "model_answer": predicted,
-        "img_with_mask": img_base64
-    })
+    return pipeline_response
