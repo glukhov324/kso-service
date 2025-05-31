@@ -2,7 +2,6 @@ from torch import nn
 from functools import partial
 from src.change_detection.encoder import EncoderTransformer_v3
 from src.change_detection.decoder import DecoderTransformer_v3
-from src.settings import settings
 
 
 

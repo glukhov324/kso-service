@@ -1,6 +1,6 @@
-import torch
-from torch import nn
-from src.change_detection.nn_parts import (
+from torch import nn, cat
+import torch.nn.functional as F
+from src.change_detection.decoder_blocks import (
     MLP, 
     conv_diff,
     make_prediction, 
@@ -9,7 +9,7 @@ from src.change_detection.nn_parts import (
     ConvLayer
 )
 from src.change_detection.utils import resize
-import torch.nn.functional as F
+
 
 
 class DecoderTransformer_v3(nn.Module):
@@ -27,11 +27,11 @@ class DecoderTransformer_v3(nn.Module):
         #settings
         self.feature_strides = feature_strides
         self.input_transform = input_transform
-        self.in_index        = in_index
-        self.align_corners   = align_corners
-        self.in_channels     = in_channels
-        self.embedding_dim   = embedding_dim
-        self.output_nc       = output_nc
+        self.in_index = in_index
+        self.align_corners = align_corners
+        self.in_channels = in_channels
+        self.embedding_dim = embedding_dim
+        self.output_nc = output_nc
         c1_in_channels, c2_in_channels, c3_in_channels, c4_in_channels = self.in_channels
 
         #MLP decoder heads
@@ -41,10 +41,10 @@ class DecoderTransformer_v3(nn.Module):
         self.linear_c1 = MLP(input_dim=c1_in_channels, embed_dim=self.embedding_dim)
 
         #convolutional Difference Modules
-        self.diff_c4   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
-        self.diff_c3   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
-        self.diff_c2   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
-        self.diff_c1   = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
+        self.diff_c4 = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
+        self.diff_c3 = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
+        self.diff_c2 = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
+        self.diff_c1 = conv_diff(in_channels=2*self.embedding_dim, out_channels=self.embedding_dim)
 
         #taking outputs from middle of the encoder
         self.make_pred_c4 = make_prediction(in_channels=self.embedding_dim, out_channels=self.output_nc)
@@ -60,15 +60,15 @@ class DecoderTransformer_v3(nn.Module):
         )
 
         #Final predction head
-        self.convd2x    = UpsampleConvLayer(self.embedding_dim, self.embedding_dim, kernel_size=4, stride=2)
-        self.dense_2x   = nn.Sequential( ResidualBlock(self.embedding_dim))
-        self.convd1x    = UpsampleConvLayer(self.embedding_dim, self.embedding_dim, kernel_size=4, stride=2)
-        self.dense_1x   = nn.Sequential( ResidualBlock(self.embedding_dim))
+        self.convd2x = UpsampleConvLayer(self.embedding_dim, self.embedding_dim, kernel_size=4, stride=2)
+        self.dense_2x = nn.Sequential( ResidualBlock(self.embedding_dim))
+        self.convd1x = UpsampleConvLayer(self.embedding_dim, self.embedding_dim, kernel_size=4, stride=2)
+        self.dense_1x = nn.Sequential( ResidualBlock(self.embedding_dim))
         self.change_probability = ConvLayer(self.embedding_dim, self.output_nc, kernel_size=3, stride=1, padding=1)
         
         #Final activation
-        self.output_softmax     = decoder_softmax
-        self.active             = nn.Sigmoid() 
+        self.output_softmax = decoder_softmax
+        self.active = nn.Sigmoid() 
 
     def _transform_inputs(self, inputs):
         """Transform inputs for decoder.
@@ -87,7 +87,7 @@ class DecoderTransformer_v3(nn.Module):
                     mode='bilinear',
                     align_corners=self.align_corners) for x in inputs
             ]
-            inputs = torch.cat(upsampled_inputs, dim=1)
+            inputs = cat(upsampled_inputs, dim=1)
         elif self.input_transform == 'multiple_select':
             inputs = [inputs[i] for i in self.in_index]
         else:
@@ -111,42 +111,36 @@ class DecoderTransformer_v3(nn.Module):
         # Stage 4: x1/32 scale
         _c4_1 = self.linear_c4(c4_1).permute(0,2,1).reshape(n, -1, c4_1.shape[2], c4_1.shape[3])
         _c4_2 = self.linear_c4(c4_2).permute(0,2,1).reshape(n, -1, c4_2.shape[2], c4_2.shape[3])
-        _c4   = self.diff_c4(torch.cat((_c4_1, _c4_2), dim=1))
-        p_c4  = self.make_pred_c4(_c4)
+        _c4 = self.diff_c4(cat((_c4_1, _c4_2), dim=1))
+        p_c4 = self.make_pred_c4(_c4)
         outputs.append(p_c4)
         _c4_up= resize(_c4, size=c1_2.size()[2:], mode='bilinear', align_corners=False)
 
         # Stage 3: x1/16 scale
         _c3_1 = self.linear_c3(c3_1).permute(0,2,1).reshape(n, -1, c3_1.shape[2], c3_1.shape[3])
         _c3_2 = self.linear_c3(c3_2).permute(0,2,1).reshape(n, -1, c3_2.shape[2], c3_2.shape[3])
-        _c3   = self.diff_c3(torch.cat((_c3_1, _c3_2), dim=1)) + F.interpolate(_c4, scale_factor=2, mode="bilinear")
-        p_c3  = self.make_pred_c3(_c3)
+        _c3 = self.diff_c3(cat((_c3_1, _c3_2), dim=1)) + F.interpolate(_c4, scale_factor=2, mode="bilinear")
+        p_c3 = self.make_pred_c3(_c3)
         outputs.append(p_c3)
         _c3_up= resize(_c3, size=c1_2.size()[2:], mode='bilinear', align_corners=False)
 
         # Stage 2: x1/8 scale
         _c2_1 = self.linear_c2(c2_1).permute(0,2,1).reshape(n, -1, c2_1.shape[2], c2_1.shape[3])
         _c2_2 = self.linear_c2(c2_2).permute(0,2,1).reshape(n, -1, c2_2.shape[2], c2_2.shape[3])
-        _c2   = self.diff_c2(torch.cat((_c2_1, _c2_2), dim=1)) + F.interpolate(_c3, scale_factor=2, mode="bilinear")
-        p_c2  = self.make_pred_c2(_c2)
+        _c2 = self.diff_c2(cat((_c2_1, _c2_2), dim=1)) + F.interpolate(_c3, scale_factor=2, mode="bilinear")
+        p_c2 = self.make_pred_c2(_c2)
         outputs.append(p_c2)
         _c2_up= resize(_c2, size=c1_2.size()[2:], mode='bilinear', align_corners=False)
 
         # Stage 1: x1/4 scale
         _c1_1 = self.linear_c1(c1_1).permute(0,2,1).reshape(n, -1, c1_1.shape[2], c1_1.shape[3])
         _c1_2 = self.linear_c1(c1_2).permute(0,2,1).reshape(n, -1, c1_2.shape[2], c1_2.shape[3])
-        _c1   = self.diff_c1(torch.cat((_c1_1, _c1_2), dim=1)) + F.interpolate(_c2, scale_factor=2, mode="bilinear")
-        p_c1  = self.make_pred_c1(_c1)
+        _c1 = self.diff_c1(cat((_c1_1, _c1_2), dim=1)) + F.interpolate(_c2, scale_factor=2, mode="bilinear")
+        p_c1 = self.make_pred_c1(_c1)
         outputs.append(p_c1)
 
         #Linear Fusion of difference image from all scales
-        _c = self.linear_fuse(torch.cat((_c4_up, _c3_up, _c2_up, _c1), dim=1))
-
-        # #Dropout
-        # if dropout_ratio > 0:
-        #     self.dropout = nn.Dropout2d(dropout_ratio)
-        # else:
-        #     self.dropout = None
+        _c = self.linear_fuse(cat((_c4_up, _c3_up, _c2_up, _c1), dim=1))
 
         #Upsampling x2 (x1/2 scale)
         x = self.convd2x(_c)

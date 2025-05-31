@@ -1,13 +1,14 @@
 from PIL import Image
 import io
 import numpy as np
-from src.change_detection.data_transforms import transform_test
 from loguru import logger
 import base64
-from src.change_detection.predictor import cd_predictor
-from src.classification.data_transforms import cls_data_transforms
-from src.classification.prediction import get_clf_predict
-from src.classification.model import cls_models_dict
+from src.change_detection import cd_predictor, transform_test
+from src.classification import (
+    cls_data_transforms,
+    get_clf_predict,
+    cls_models_dict
+)
 from src.schemas import PipelinePrediction
 from src.settings import settings
 

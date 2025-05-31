@@ -1,7 +1,5 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 import torch
-import numpy as np
-from typing import List
 
 
 
@@ -25,6 +23,5 @@ class Settings(BaseSettings):
     # Mask post processing
     DILATE_ITER: int
     
-
-
+    
 settings = Settings()

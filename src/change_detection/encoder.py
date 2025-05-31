@@ -1,8 +1,10 @@
 from torch import nn
 import torch
 import math
-from src.change_detection.nn_parts import OverlapPatchEmbed, Block
 from timm.models.layers import trunc_normal_
+from src.change_detection.encoder_blocks import OverlapPatchEmbed, Block
+
+
 
 
 class EncoderTransformer_v3(nn.Module):
