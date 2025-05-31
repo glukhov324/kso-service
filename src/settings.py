@@ -13,7 +13,6 @@ class Settings(BaseSettings):
 
     # Models
     CD_MODEL_WTS_PATH: str
-    BEET_CLF_WTS_PATH: str
     ONION_CLF_WTS_PATH: str
     POTATO_CLF_WTS_PATH: str
     CABBAGE_CLF_WTS_PATH: str
