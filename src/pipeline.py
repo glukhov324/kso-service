@@ -6,7 +6,7 @@ from loguru import logger
 import base64
 from src.change_detection.predictor import cd_predictor
 from src.classification.data_transforms import cls_data_transforms
-from src.classification.prediction import clf_predict
+from src.classification.prediction import get_clf_predict
 from src.classification.model import cls_models_dict
 from src.schemas import PipelinePrediction
 from src.settings import settings
@@ -32,11 +32,9 @@ def pipeline_prediction(data_a: str,
     cd_mask_tr = cls_data_transforms(cd_mask_pil).unsqueeze(0).to(settings.DEVICE)
 
     logger.info("Start classification model prediction process")
-    classification_response = clf_predict(model=cls_models_dict[user_label], 
-                                          transformed_image=cd_mask_tr)
+    classification_response = get_clf_predict(model=cls_models_dict[user_label], 
+                                              transformed_image=cd_mask_tr)
     logger.info("End classification model prediction process")
-    
-    logger.info(f'model confidence: {classification_response.confidence}, is true product? : {classification_response.is_true_product}')
     
     cd_mask_byte_arr = io.BytesIO()
     cd_mask_pil.save(cd_mask_byte_arr, format='PNG')
@@ -44,5 +42,5 @@ def pipeline_prediction(data_a: str,
     mask_base64 = base64.b64encode(cd_mask_byte_arr.getvalue()).decode('utf-8')
 
     return PipelinePrediction(confidence=classification_response.confidence,
-                              is_true_product=classification_response.is_true_product,
+                              product_class=classification_response.product_class,
                               mask_base_64=mask_base64)
