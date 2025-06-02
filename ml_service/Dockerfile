@@ -11,4 +11,4 @@ RUN apt-get update && \
     pip install --upgrade pip && \ 
     pip install -r /app/requirements.txt
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD python3 run.py
