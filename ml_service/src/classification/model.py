@@ -10,8 +10,8 @@ def init_cls_model(model_wts_path: str) -> nn.Module:
     model = models.mobilenet_v3_large()
     model.classifier[3] = nn.Linear(in_features=1280, out_features=1, bias=True)
     model.classifier.add_module('4', nn.Sigmoid())
-    model.load_state_dict(torch.load(model_wts_path))
-    model = model.to(settings.DEVICE)
+    model.load_state_dict(torch.load(model_wts_path, map_location=settings.DEVICE))
+    model.to(settings.DEVICE)
     model.eval()
 
     return model
