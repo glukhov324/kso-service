@@ -53,6 +53,8 @@ function ImageUploader() {
     }
   };
 
+
+
   const handleClear = () => {
     setFileA(null);
     setFileB(null);
@@ -145,7 +147,9 @@ function ImageUploader() {
                 alt="Результат"
                 style={{ maxWidth: '100%', marginTop: 16 }}
               />
-              <Typography>Ответ модели: {result.product_class}</Typography>
+              <Typography>
+                {result.product_class === 1 ? 'Товар на весах соответствует названию в интерфейсе' : 'Товар на весах не соответствует названию в интерфейсе'}
+              </Typography>
             </Grid>
           )}
         </Grid>
