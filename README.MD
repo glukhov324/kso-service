@@ -23,3 +23,14 @@
 ![pipeline](preview/pipeline.png)
 
 В demo.ipynb находится пример обращения к МЛ-микросервису
+
+## Запуск проекта
+
+```sh
+
+# build
+docker compose up --build
+
+# run
+docker compose up
+```
