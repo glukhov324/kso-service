@@ -21,10 +21,12 @@ model_onion = init_cls_model(settings.ONION_CLF_WTS_PATH)
 model_potato = init_cls_model(settings.POTATO_CLF_WTS_PATH)
 model_cabbage = init_cls_model(settings.CABBAGE_CLF_WTS_PATH)
 model_pollock = init_cls_model(settings.POLLOCK_CLF_WTS_PATH)
+model_beet = init_cls_model(settings.BEET_CLF_WTS_PATH)
 
 cls_models_dict = {
     "ЛУК РЕПЧАТЫЙ": model_onion,
     "КАРТОФЕЛЬ": model_potato,
     "КАПУСТА БЕЛОКОЧАННАЯ": model_cabbage,
-    "МИНТАЙ": model_pollock
+    "МИНТАЙ": model_pollock,
+    "СВЕКЛА": model_beet
 }

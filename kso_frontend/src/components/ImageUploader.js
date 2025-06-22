@@ -85,6 +85,7 @@ function ImageUploader() {
               <MenuItem value="КАРТОФЕЛЬ">КАРТОФЕЛЬ</MenuItem>
               <MenuItem value="КАПУСТА БЕЛОКОЧАННАЯ">КАПУСТА БЕЛОКОЧАННАЯ</MenuItem>
               <MenuItem value="МИНТАЙ">МИНТАЙ</MenuItem>
+              <MenuItem value="СВЕКЛА">СВЕКЛА</MenuItem>
             </Select>
           </FormControl>
         </Grid>

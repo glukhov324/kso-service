@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     POTATO_CLF_WTS_PATH: str
     CABBAGE_CLF_WTS_PATH: str
     POLLOCK_CLF_WTS_PATH: str
+    BEET_CLF_WTS_PATH: str
     DEVICE: torch.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
     # Mask post processing
