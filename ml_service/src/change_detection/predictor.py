@@ -33,6 +33,7 @@ class ChangeDetectionPredictor():
    
         return pred_vis
 
+    @torch.inference_mode()
     def inference(self, 
                   img_a: torch.Tensor, 
                   img_b: torch.Tensor) -> np.ndarray:
