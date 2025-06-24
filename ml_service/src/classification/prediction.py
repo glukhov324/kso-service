@@ -19,6 +19,6 @@ def get_clf_predict(model: nn.Module,
     """
 
     y_pred = model(transformed_image).squeeze()
-    product_class = (y_pred > settings.CLF_CONFIDENCE).cpu().item()
+    product_class = (y_pred > settings.CLF_CONFIDENCE_THRESHOLD).cpu().item()
 
     return product_class 
