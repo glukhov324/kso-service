@@ -52,8 +52,8 @@ def pipeline_prediction(data_a: str,
     cd_mask_tr = cls_data_transforms(cd_mask_pil).unsqueeze(0).to(settings.DEVICE)
 
     logger.info("Start classification model prediction process")
-    classification_response = get_clf_predict(model=cls_models_dict[user_label], 
-                                              transformed_image=cd_mask_tr)
+    product_class = get_clf_predict(model=cls_models_dict[user_label], 
+                                    transformed_image=cd_mask_tr)
     logger.info("End classification model prediction process")
     
     cd_mask_byte_arr = io.BytesIO()
@@ -61,6 +61,5 @@ def pipeline_prediction(data_a: str,
     cd_mask_byte_arr.seek(0)
     mask_base64 = base64.b64encode(cd_mask_byte_arr.getvalue()).decode('utf-8')
 
-    return PipelinePrediction(confidence=classification_response.confidence,
-                              product_class=classification_response.product_class,
+    return PipelinePrediction(product_class=product_class,
                               mask_base_64=mask_base64)

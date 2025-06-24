@@ -2,9 +2,6 @@ from pydantic import BaseModel
 
 
 
-class ClassificationPrediction(BaseModel):
-    confidence: float
+class PipelinePrediction(BaseModel):
     product_class: int
-
-class PipelinePrediction(ClassificationPrediction):
     mask_base_64: str
