@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from src.settings import settings
 
 
 
@@ -18,6 +19,6 @@ def get_clf_predict(model: nn.Module,
     """
 
     y_pred = model(transformed_image).squeeze()
-    product_class = (y_pred > 0.5).cpu().item()
+    product_class = (y_pred > settings.CLF_CONFIDENCE).cpu().item()
 
     return product_class 

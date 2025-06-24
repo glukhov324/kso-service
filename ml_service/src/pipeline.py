@@ -29,7 +29,6 @@ def pipeline_prediction(data_a: str,
 
     Returns:
         PipelinePrediction: Объект, содержащий результаты с полями:
-            - confidence (float): Вероятность положительного класса
             - product_class (int): Предсказанный класс
             - mask_base_64 (str): Бинарная маска изменений в формат Base64
     
