@@ -45,20 +45,20 @@ def pipeline_prediction(data_a: str,
     cd_mask_raw = cd_predictor.inference(img_a_tr, img_b_tr)
     logger.info("End change detection model prediction process")
 
-    cd_mask = np.array(pil_img_b)
-    cd_mask[cd_mask_raw == 0] = 1
-    cd_mask_pil = Image.fromarray(cd_mask)
-    cd_mask_tr = cls_data_transforms(cd_mask_pil).unsqueeze(0).to(settings.DEVICE)
+    added_array = np.array(pil_img_b)
+    added_array[cd_mask_raw == 0] = 1
+    added_pil = Image.fromarray(added_array)
+    cd_mask_tr = cls_data_transforms(added_pil).unsqueeze(0).to(settings.DEVICE)
 
     logger.info("Start classification model prediction process")
     product_class = get_clf_predict(model=cls_models_dict[user_label], 
                                     transformed_image=cd_mask_tr)
     logger.info("End classification model prediction process")
     
-    cd_mask_byte_arr = io.BytesIO()
-    cd_mask_pil.save(cd_mask_byte_arr, format='PNG')
-    cd_mask_byte_arr.seek(0)
-    mask_base64 = base64.b64encode(cd_mask_byte_arr.getvalue()).decode('utf-8')
+    added_bytes = io.BytesIO()
+    added_pil.save(added_bytes, format='PNG')
+    added_bytes.seek(0)
+    added_base64 = base64.b64encode(added_bytes.getvalue()).decode('utf-8')
 
     return PipelinePrediction(product_class=product_class,
-                              mask_base_64=mask_base64)
+                              added_base_64=added_base64)
