@@ -144,7 +144,7 @@ function ImageUploader() {
             <Grid item xs={12}>
               <Typography variant="h6">Результат:</Typography>
               <img
-                src={`data:image/png;base64,${result.mask_base_64}`}
+                src={`data:image/png;base64,${result.added_base_64}`}
                 alt="Результат"
                 style={{ maxWidth: '100%', marginTop: 16 }}
               />
