@@ -10,6 +10,10 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     DEV_MODE: bool = False
+    APP_TITLE: str
+    APP_DESCRIPTION: str
+    APP_VERSION: str
+
 
     # Models
     CD_MODEL_WTS_PATH: str
