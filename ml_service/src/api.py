@@ -1,22 +1,27 @@
-from fastapi.templating import Jinja2Templates
-from fastapi import APIRouter, Request, UploadFile, Form
+from fastapi import (
+    APIRouter, 
+    UploadFile, 
+    Form, 
+    status
+)
 from fastapi.responses import JSONResponse
 from src.classification.model import cls_models_dict
 from src.pipeline import pipeline_prediction
-from src.schemas import PipelinePrediction
+from src.schemas import PipelinePrediction, Msg
 
 
 
 router = APIRouter(prefix="/pair_images")
 
 
-@router.post('/predict')
+@router.post('/predict', response_model=PipelinePrediction)
 async def a_b_label_predict(file_a: UploadFile, 
                             file_b: UploadFile, 
                             user_label: str = Form(...)) -> PipelinePrediction:
 
     if user_label not in cls_models_dict.keys():
-        return JSONResponse(status_code=404, content={"message": "Для указанного названия товара нет классификатора"})
+        return JSONResponse(content=Msg(msg="Для указанного названия товара нет классификатора").model_dump(),
+                            status_code=status.HTTP_404_NOT_FOUND)
 
     data_a = await file_a.read()
     data_b = await file_b.read()
